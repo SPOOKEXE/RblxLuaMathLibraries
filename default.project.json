@@ -1,0 +1,19 @@
+{
+	"name": "rblx-libs",
+	"tree": {
+		"$className": "DataModel",
+		"ServerScriptService" : {
+			"$className" : "ServerScriptService",
+			"$ignoreUnknownInstances": true,
+			"$path" : "tests"
+		},
+		"ServerStorage": {
+			"$className": "ServerStorage",
+			"$ignoreUnknownInstances": true,
+			"ActorPool" : {
+				"$ignoreUnknownInstances": true,
+				"$path" : "ActorPool"
+			}
+		}
+	}
+}
