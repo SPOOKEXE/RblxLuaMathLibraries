@@ -13,26 +13,15 @@ assert( typeof(InboundEvent) == 'Instance' and InboundEvent:IsA('BindableEvent')
 local Module = {}
 
 Module.Commands = {
-	Vec3Mag = function( _ : number, vec0 : Vector3, vec1 : Vector3 ) : number
-		-- task.wait(0.1)
-		return (vec1 - vec0).Magnitude
+
+	Sum = function(...)
+		local total = 0
+		for _, number in ipairs({...}) do
+			total += number
+		end
+		return total
 	end,
 
-	DecodePixelRow = function( RowList )
-		local basePixel = '<font color=rgb(%s,%s,%s)>%s</font>'
-		local Pixels = {}
-		for _, Value in ipairs( RowList ) do
-			local count, value = 1, Value
-			if typeof(Value) == 'string' then
-				count, value = string.split(Value, 'y')
-				count = tonumber(count)
-				local r, g, b = string.split(value, ',')
-				value = { tonumber(r), tonumber(g), tonumber(b) }
-			end
-			table.insert(Pixels, string.format(basePixel, unpack(value), string.rep('|', count)))
-		end
-		return Pixels
-	end,
 }
 
 function Module.HandleCommand( command : string | number, ... : any? ) : any?
@@ -46,10 +35,12 @@ end
 
 function Module.Start()
 
+	-- ConnectParallel automatically starts desynchronized
 	OutboundEvent.Event:ConnectParallel(function( UUID : string, ParamCounter : number, command : string, arguments : { any? } )
 		if ActorUUID == UUID then
 			local result = { pcall(Module.HandleCommand, command, unpack(arguments)) }
 			local success = table.remove(result, 1)
+			-- WRITE PARALLEL ENABLED
 			InboundEvent:Fire( UUID, ParamCounter, success, result )
 		end
 	end)

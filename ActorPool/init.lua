@@ -40,6 +40,10 @@ local InboundBind = Instance.new('BindableEvent')
 InboundBind.Name = 'Inbound'
 InboundBind.Parent = script
 
+local ActorFolder = Instance.new('Folder')
+ActorFolder.Name = 'ActorContainer'
+ActorFolder.Parent = RunService:IsServer() and game:GetService('ServerScriptService') or game:GetService('Players').LocalPlayer:WaitForChild('PlayerScripts')
+
 -- // Module // --
 local Module = {}
 
@@ -66,17 +70,16 @@ function Module.CreateActor() : Actor
 	InboundReference.Value = InboundBind
 	InboundReference.Parent = Actor
 
-	for _, Object in ipairs( script.Actor:GetChildren() ) do
+	for _, Object in ipairs( script:GetChildren() ) do
 		Object:Clone().Parent = Actor
 	end
 
 	if RunService:IsServer() then
 		Actor.ActorServer.Disabled = false
-		Actor.Parent = game:GetService('ServerScriptService')
 	else
 		Actor.ActorClient.Disabled = false
-		Actor.Parent = game:GetService('Players').LocalPlayer:WaitForChild('PlayerScripts')
 	end
+	Actor.Parent = ActorFolder
 
 	return UUID, Actor
 end
@@ -164,7 +167,7 @@ function Module.DistributeCalculation(
 
 	local connection; connection = InboundBind.Event:Connect(function(UUID : string, resultIndex : number, success : boolean, results : any?)
 		if success then
-			Results[ resultIndex ] = results
+			Results[ resultIndex ] = #results == 1 and results[1] or results
 		else
 			warn('Failed to run command on actor: ' .. tostring( results[1] ) )
 		end
